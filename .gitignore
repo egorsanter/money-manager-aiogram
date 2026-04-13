@@ -1,0 +1,7 @@
+.pytest_cache
+__pycache__/
+logs/
+.venv
+.env
+bot_error.log
+bot.log
