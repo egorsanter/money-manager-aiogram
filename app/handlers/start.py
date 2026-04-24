@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import CommandStart
 
-from app.services.start_service import get_start_text
+from app.services.start import get_start_text
 from app.logger import setup_logger
 
 
