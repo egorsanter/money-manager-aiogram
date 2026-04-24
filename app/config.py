@@ -13,3 +13,5 @@ if not BOT_TOKEN:
 LOG_DIR = os.getenv('LOG_DIR', 'logs')
 LOG_FILE = os.getenv('LOG_FILE', 'bot_info.log')
 LOG_ERROR_FILE = os.getenv('LOG_ERROR_FILE', 'bot_error.log')
+
+DATABASE_URL = os.getenv('DATABASE_URL')
