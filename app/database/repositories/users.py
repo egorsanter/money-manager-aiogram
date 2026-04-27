@@ -1,23 +1,18 @@
 from sqlalchemy import select
 
-from app.database.models import async_session
-from app.database.models import User, Category
+from app.database.database import async_session
+from app.database.models import User
 
 
-async def set_user(telegram_id) -> None:
+async def get_user_by_telegram_id(telegram_id: int) -> User | None:
     async with async_session() as session:
-        user = await session.scalar(
+        return await session.scalar(
             select(User).where(User.telegram_id == telegram_id)
         )
     
-        if not user:
-            user = User(
-                telegram_id=telegram_id,
-                categories=[
-                    Category(name="Еда", type="expense"),
-                    Category(name="Зарплата", type="income"),
-                ]
-            )
 
-            session.add(user)
-            await session.commit()
+async def create_user(user: User) -> User:
+    async with async_session() as session:
+        session.add(user)
+        await session.commit()
+        return user

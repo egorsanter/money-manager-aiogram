@@ -1,17 +1,26 @@
-from sqlalchemy import select
+from decimal import Decimal
 
-from app.database.models import async_session
-from app.database.models import Transaction, User
+from app.database.database import async_session
+from app.database.models import Transaction
 
 
-async def add_transaction(telegram_id: int, category_id: int, amount: float) -> None:
+async def create_transaction(
+    user_id: int,
+    account_id: int,
+    category_id: int,
+    amount: Decimal,
+    description: str | None = None,
+) -> Transaction:
     async with async_session() as session:
-        user = await session.scalar(select(User).where(User.telegram_id == telegram_id))
-        
-        new_transaction = Transaction(
-            user_id=user.user_id,
+        transaction = Transaction(
+            user_id=user_id,
+            account_id=account_id,
             category_id=category_id,
-            amount=amount
+            amount=amount,
+            description=description,
         )
-        session.add(new_transaction)
+
+        session.add(transaction)
         await session.commit()
+
+        return transaction

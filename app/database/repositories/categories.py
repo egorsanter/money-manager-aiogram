@@ -1,18 +1,30 @@
 from sqlalchemy import select
 
-from app.database.models import async_session
+from app.database.database import async_session
 from app.database.models import Category
 
 
-async def get_categories(type) -> None:
+async def get_categories(
+        user_id: int,
+        category_type: str
+) -> list[Category]:
     async with async_session() as session:
         return await session.scalars(
-            select(Category).where(Category.type == type)
-        )
+            select(Category).where(
+                Category.user_id == user_id,
+                Category.type == category_type,
+            )
+        ).all()
     
 
-async def get_category(category_id):
+async def get_category(
+        user_id: int,
+        category_id: int
+) -> Category | None:
     async with async_session() as session:
         return await session.scalar(
-            select(Category).where(Category.category_id == category_id)
+            select(Category).where(
+                Category.user_id == user_id,
+                Category.category_id == category_id,
+            )
         )
