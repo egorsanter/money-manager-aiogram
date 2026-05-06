@@ -10,7 +10,7 @@ async def create_transaction(
     category_id: int,
     amount: Decimal,
     description: str | None = None,
-) -> Transaction:
+) -> int:
     async with async_session() as session:
         transaction = Transaction(
             user_id=user_id,
@@ -21,6 +21,9 @@ async def create_transaction(
         )
 
         session.add(transaction)
+        await session.flush()
+        transaction_id = transaction.transaction_id
+
         await session.commit()
 
-        return transaction
+        return transaction_id

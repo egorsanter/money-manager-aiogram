@@ -9,12 +9,14 @@ async def get_categories(
         category_type: str
 ) -> list[Category]:
     async with async_session() as session:
-        return await session.scalars(
+        result = await session.scalars(
             select(Category).where(
                 Category.user_id == user_id,
-                Category.type == category_type,
+                Category.category_type == category_type,
             )
-        ).all()
+        )
+        
+        return result.all()
     
 
 async def get_category(

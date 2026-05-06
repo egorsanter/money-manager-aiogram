@@ -1,16 +1,19 @@
 import asyncio
+
 from aiogram import Bot, Dispatcher
 
 from app.config import BOT_TOKEN
-from app.handlers.start_handler import router
 from app.logger import setup_logger
+from app.handlers import router
 
 
 logger = setup_logger(__name__)
 
+
 async def main() -> None:
     logger.info('Starting bot...')
     dp = Dispatcher()
+
     dp.include_router(router)
 
     async with Bot(token=BOT_TOKEN) as bot:

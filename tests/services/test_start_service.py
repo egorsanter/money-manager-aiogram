@@ -1,4 +1,4 @@
-from app.services.start_service import get_start_text
+from app.services.start import get_start_text
 
 
 def test_get_start_text() -> None:

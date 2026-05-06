@@ -1,33 +1,49 @@
 import os
+import json
 import logging
 from logging.handlers import RotatingFileHandler
 
 from app.config import LOG_DIR, LOG_FILE, LOG_ERROR_FILE
 
 
+class JsonFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        log = {
+            'time': self.formatTime(record),
+            'level': record.levelname,
+            'message': record.getMessage(),
+            'logger': record.name,
+            'file': record.filename,
+            'line': record.lineno,
+            'user_id': getattr(record, 'user_id', None),
+        }
+
+        if record.exc_info:
+            log['exception'] = self.formatException(record.exc_info)
+
+        return json.dumps(log, ensure_ascii=False)
+
+
 def setup_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
+    logger.propagate = False
 
     if logger.hasHandlers():
         return logger
     
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(filename)s - %(levelname)s - %(message)s'
-    )
+    formatter = JsonFormatter()
 
     os.makedirs(LOG_DIR, exist_ok=True)
-
 
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    info_log_path = os.path.join(LOG_DIR, LOG_FILE)
     info_handler = RotatingFileHandler(
-        filename=info_log_path,
-        maxBytes=20*1024*1024,
+        filename=os.path.join(LOG_DIR, LOG_FILE),
+        maxBytes=20 * 1024 * 1024,
         backupCount=5,
         encoding='utf-8',
     )
@@ -35,10 +51,9 @@ def setup_logger(name: str) -> logging.Logger:
     info_handler.setFormatter(formatter)
     logger.addHandler(info_handler)
 
-    error_log_path = os.path.join(LOG_DIR, LOG_ERROR_FILE)
     error_handler = RotatingFileHandler(
-        filename=error_log_path,
-        maxBytes=5*1024*1024,
+        filename=os.path.join(LOG_DIR, LOG_ERROR_FILE),
+        maxBytes=5 * 1024 * 1024,
         backupCount=3,
         encoding='utf-8',
     )
