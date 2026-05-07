@@ -10,7 +10,7 @@ CATEGORY_MESSAGES = {
     'income': 'Select an income category',
 }
 
-MAIN_MENU_TEXT = '📊 Main menu'
+MAIN_MENU_TEXT = '🏠 Main menu'
 
 INVALID_AMOUNT_MSG = 'Please enter the correct amount!'
 NON_POSITIVE_AMOUNT_MSG = 'Amount must be greater than 0!'
@@ -20,3 +20,12 @@ CATEGORY_SELECTION_TEXT = 'Choose a category:'
 ACCOUNT_SELECTION_TEXT = 'Choose an account:'
 DESCRIPTION_INPUT_TEXT = 'Please enter the description:'
 TRANSACTION_CREATE_TEXT = 'Done!'
+
+class Buttons:
+    BACK = ('⬅️ Back', 'back')
+    MAIN = ('🏠 Main', 'main')
+
+    INCOME = ('💰 Income', 'income')
+    EXPENSE = ('💸 Expense', 'expense')
+
+    SKIP = ('⏭️ Skip', 'description_skip')

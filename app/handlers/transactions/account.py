@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from app.database.repositories.users import get_user_by_telegram_id
-from app.keyboards import description
+from app.keyboards import description_keyboard
 from app.logger import setup_logger
 from app.services.navigation.service import set_step
 from app.services.navigation.steps import NavigationStep
@@ -38,7 +38,7 @@ async def account_selected(
 
     await callback.message.edit_text(
         DESCRIPTION_INPUT_TEXT,
-        reply_markup=await description(),
+        reply_markup=description_keyboard(),
     )
     await callback.answer()
 

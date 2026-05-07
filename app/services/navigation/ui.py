@@ -1,7 +1,7 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from app.keyboards import main_menu
+from app.keyboards import main_menu_keyboard
 from app.logger import setup_logger
 from app.messages import MAIN_MENU_TEXT
 from app.services.navigation.service import set_step
@@ -24,4 +24,4 @@ async def show_main_menu(
         user_id=user_id,
     )
 
-    await message.answer(MAIN_MENU_TEXT, reply_markup=await main_menu())
+    await message.answer(MAIN_MENU_TEXT, reply_markup=main_menu_keyboard())

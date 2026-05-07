@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery, Message
 
 from app.database.repositories.transactions import create_transaction
 from app.database.repositories.users import get_user_by_telegram_id
-from app.keyboards import show_main_menu
+from app.keyboards import main_menu_button_keyboard
 from app.logger import setup_logger
 from app.states import AddDescription
 from app.database.repositories.categories import get_category
@@ -45,13 +45,14 @@ async def description_skipped(
         f"💸 Amount: {data['amount']}\n"
         f'📂 Category: {category_name}\n'
         f'🏦 Account: {account_name}\n'
+        f"📝 Description: –"
     )
 
     await state.clear()
 
     await callback.message.edit_text(
         text=text,
-        reply_markup=await show_main_menu(),
+        reply_markup=main_menu_button_keyboard(),
     )
     await callback.answer()
 
@@ -108,7 +109,7 @@ async def description_submitted(
         text=text,
         chat_id=message.chat.id,
         message_id=message_id,
-        reply_markup=await show_main_menu(),
+        reply_markup=main_menu_button_keyboard(),
     )
 
     logger.info(

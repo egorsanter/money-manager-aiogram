@@ -3,7 +3,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from app.database.repositories.users import get_user_by_telegram_id
-from app.keyboards import accounts, back_keyboard, categories, main_menu
+from app.keyboards import (
+    accounts_keyboard,
+    back_keyboard,
+    categories_keyboard,
+    main_menu_keyboard,
+)
 from app.logger import setup_logger
 from app.messages import (
     ACCOUNT_SELECTION_TEXT,
@@ -12,7 +17,6 @@ from app.messages import (
     DESCRIPTION_INPUT_TEXT,
     MAIN_MENU_TEXT,
 )
-from app.services.navigation.service import set_step
 from app.services.navigation.steps import NavigationStep
 from app.states import AddDescription, AddTransaction
 
@@ -28,7 +32,6 @@ async def back_selected(
 ) -> None:
     user = await get_user_by_telegram_id(callback.from_user.id)
     user_id = user.user_id
-    telegram_id = callback.from_user.id
     message_id = callback.message.message_id
 
     data = await state.get_data()
@@ -36,77 +39,79 @@ async def back_selected(
 
     if previous_step == NavigationStep.MAIN:
         await state.clear()
-
-        await set_step(
-            state=state,
+        await state.update_data(
             current_step=NavigationStep.MAIN,
+            previous_step=None,
             user_id=user_id,
         )
 
         await callback.message.edit_text(
             MAIN_MENU_TEXT,
-            reply_markup=await main_menu(),
+            reply_markup=main_menu_keyboard(),
         )
 
     elif previous_step == NavigationStep.AMOUNT_INPUT:
-        transaction_type = data['transaction_type']
+        category_type = data['category_type']
 
-        await set_step(
-            state=state,
+        await state.update_data(
             current_step=NavigationStep.AMOUNT_INPUT,
+            previous_step=NavigationStep.MAIN,
             user_id=user_id,
-            transaction_type=transaction_type,
+            category_type=category_type,
             message_id=message_id,
         )
         await state.set_state(AddTransaction.amount_input)
 
         await callback.message.edit_text(
             AMOUNT_INPUT_TEXT,
-            reply_markup=await back_keyboard(),
+            reply_markup=back_keyboard(),
         )
 
     elif previous_step == NavigationStep.CATEGORY_SELECTION:
-        transaction_type = data['transaction_type']
+        category_type = data['category_type']
         amount = data['amount']
 
-        await set_step(
-            state=state,
+        await state.update_data(
             current_step=NavigationStep.CATEGORY_SELECTION,
+            previous_step=NavigationStep.AMOUNT_INPUT,
             user_id=user_id,
+            category_type=category_type,
             amount=amount,
             message_id=message_id,
         )
+        await state.set_state(None)
 
         await callback.message.edit_text(
             CATEGORY_SELECTION_TEXT,
-            reply_markup=await categories(
-                user,
-                transaction_type,
+            reply_markup=await categories_keyboard(
+                user_id=user_id,
+                category_type=category_type,
             ),
         )
 
     elif previous_step == NavigationStep.ACCOUNT_SELECTION:
         category_id = data['category_id']
 
-        await set_step(
-            state=state,
+        await state.update_data(
             current_step=NavigationStep.ACCOUNT_SELECTION,
+            previous_step=NavigationStep.CATEGORY_SELECTION,
             user_id=user_id,
             category_id=category_id,
             message_id=message_id,
         )
+        await state.set_state(None)
 
         await callback.message.edit_text(
             ACCOUNT_SELECTION_TEXT,
-            reply_markup=await accounts(telegram_id),
+            reply_markup=await accounts_keyboard(user_id),
         )
 
     elif previous_step == NavigationStep.DESCRIPTION_INPUT:
         account_id = data['account_id']
 
-        await set_step(
-            state=state,
+        await state.update_data(
             current_step=NavigationStep.DESCRIPTION_INPUT,
+            previous_step=NavigationStep.ACCOUNT_SELECTION,
             user_id=user_id,
             account_id=account_id,
             message_id=message_id,
@@ -115,21 +120,20 @@ async def back_selected(
 
         await callback.message.edit_text(
             DESCRIPTION_INPUT_TEXT,
-            reply_markup=await back_keyboard(),
+            reply_markup=back_keyboard(),
         )
 
     else:
         await state.clear()
-
-        await set_step(
-            state=state,
+        await state.update_data(
             current_step=NavigationStep.MAIN,
+            previous_step=None,
             user_id=user_id,
         )
 
         await callback.message.edit_text(
             MAIN_MENU_TEXT,
-            reply_markup=await main_menu(),
+            reply_markup=main_menu_keyboard(),
         )
 
     logger.info(

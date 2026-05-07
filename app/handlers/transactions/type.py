@@ -29,14 +29,14 @@ async def transaction_selected(
         state,
         current_step=NavigationStep.AMOUNT_INPUT,
         user_id=user_id,
-        transaction_type=callback.data,
+        category_type=callback.data,
         message_id=message_id,
     )
     await state.set_state(AddTransaction.amount_input)
 
     await callback.message.edit_text(
         AMOUNT_INPUT_TEXT,
-        reply_markup=await back_keyboard(),
+        reply_markup=back_keyboard(),
     )
     await callback.answer()
 
@@ -44,7 +44,7 @@ async def transaction_selected(
         'Transaction type selected',
         extra={
             'user_id': user_id,
-            'transaction_type': callback.data,
+            'category_type': callback.data,
             'message_id': message_id,
         },
     )

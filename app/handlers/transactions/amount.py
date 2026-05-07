@@ -4,13 +4,14 @@ from aiogram.types import Message
 
 from app.database.repositories.users import get_user_by_telegram_id
 from app.exceptions import InvalidAmountError
-from app.keyboards import back_keyboard, categories
+from app.keyboards import back_keyboard, categories_keyboard
 from app.logger import setup_logger
+from app.messages import CATEGORY_SELECTION_TEXT
 from app.services.navigation.service import set_step
 from app.services.navigation.steps import NavigationStep
+from app.services.telegram import safe_edit_message_text
 from app.services.transactions import parse_amount
 from app.states import AddTransaction
-from app.messages import CATEGORY_SELECTION_TEXT
 
 
 router = Router()
@@ -27,24 +28,26 @@ async def amount_submitted(
 
     data = await state.get_data()
     message_id = data['message_id']
-    transaction_type = data['transaction_type']
+    category_type = data['category_type']
 
     try:
         amount = parse_amount(message.text)
-    except InvalidAmountError as error:  
+    except InvalidAmountError as error:
         await message.delete()
-        await message.bot.edit_message_text(
-            text=str(error),
+
+        await safe_edit_message_text(
+            bot=message.bot,
             chat_id=message.chat.id,
             message_id=message_id,
-            reply_markup=await back_keyboard(),
+            text=str(error),
+            reply_markup=back_keyboard(),
         )
 
         logger.warning(
             'Invalid transaction amount submitted',
             extra={
                 'user_id': user_id,
-                'transaction_type': transaction_type,
+                'category_type': category_type,
                 'message_id': message_id,
                 'error': str(error),
             },
@@ -61,13 +64,15 @@ async def amount_submitted(
     )
 
     await message.delete()
-    await message.bot.edit_message_text(
-        text=CATEGORY_SELECTION_TEXT,
+
+    await safe_edit_message_text(
+        bot=message.bot,
         chat_id=message.chat.id,
         message_id=message_id,
-        reply_markup=await categories(
-            user,
-            transaction_type,
+        text=CATEGORY_SELECTION_TEXT,
+        reply_markup=await categories_keyboard(
+            user_id=user_id,
+            category_type=category_type,
         ),
     )
 
@@ -75,7 +80,7 @@ async def amount_submitted(
         'Amount submitted',
         extra={
             'user_id': user_id,
-            'transaction_type': transaction_type,
+            'category_type': category_type,
             'message_id': message_id,
         },
     )

@@ -1,93 +1,81 @@
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from app.database.models import User
 from app.database.repositories.accounts import get_accounts
 from app.database.repositories.categories import get_categories
-from app.database.repositories.users import get_user_by_telegram_id
+from app.messages import Buttons
 
 
-async def description() -> InlineKeyboardMarkup:
+def _build_keyboard(
+    *buttons: tuple[str, str],
+    adjust: int = 1,
+) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
 
-    kb.button(text='No need', callback_data='description_skip')
+    for text, callback_data in buttons:
+        kb.button(text=text, callback_data=callback_data)
+
+    kb.adjust(adjust)
 
     return kb.as_markup()
 
 
-async def categories(
-    user: User,
+def back_keyboard() -> InlineKeyboardMarkup:
+    return _build_keyboard(Buttons.BACK)
+
+
+def main_menu_button_keyboard() -> InlineKeyboardMarkup:
+    return _build_keyboard(Buttons.MAIN)
+
+
+def main_menu_keyboard() -> InlineKeyboardMarkup:
+    return _build_keyboard(
+        Buttons.INCOME,
+        Buttons.EXPENSE,
+        adjust=2,
+    )
+
+
+def description_keyboard() -> InlineKeyboardMarkup:
+    return _build_keyboard(
+        Buttons.SKIP,
+        Buttons.BACK,
+    )
+
+
+async def categories_keyboard(
+    user_id: int,
     category_type: str,
 ) -> InlineKeyboardMarkup:
-
-    if user is None:
-        raise ValueError(f'User with telegram_id={telegram_id} not found')
-
-    all_categories = await get_categories(
-        user_id=user.user_id,
-        category_type=category_type,
+    categories = await get_categories(
+        user_id=user_id,
+        category_type=category_type
     )
 
-    kb = InlineKeyboardBuilder()
-
-    for category in all_categories:
-        kb.button(
-            text=category.name,
-            callback_data=f'category_{category.category_id}',
-        )
-
-    kb.button(text='Back', callback_data='back')
-    kb.adjust(4)
-
-    return kb.as_markup()
-
-
-async def accounts(user_id: int) -> InlineKeyboardMarkup:
-    # user = await get_user_by_telegram_id(telegram_id)
-
-    # if user is None:
-    #     raise ValueError(f'User with telegram_id={telegram_id} not found')
-
-    all_accounts = await get_accounts(user_id)
-
-    kb = InlineKeyboardBuilder()
-
-    for account in all_accounts:
-        kb.button(
-            text=account.name,
-            callback_data=f'account_{account.account_id}',
-        )
-
-    kb.button(text='Back', callback_data='back')
-    kb.adjust(4)
-
-    return kb.as_markup()
-
-
-async def main_menu() -> InlineKeyboardMarkup:
-    kb = InlineKeyboardBuilder()
-
-    kb.button(text='💰 Income', callback_data='income')
-    kb.button(text='💸 Expense', callback_data='expense')
-
-    kb.adjust(2)
-
-    return kb.as_markup()
-
-
-async def back_keyboard() -> InlineKeyboardMarkup:
-    kb = InlineKeyboardBuilder()
-    kb.button(
-        text='Back',
-        callback_data='back',
+    return _build_keyboard(
+        *[
+            (
+                category.name,
+                f'category_{category.category_id}',
+            )
+            for category in categories
+        ],
+        Buttons.BACK,
+        adjust=4,
     )
-    return kb.as_markup()
 
 
-async def show_main_menu() -> InlineKeyboardMarkup:
-    kb = InlineKeyboardBuilder()
-    kb.button(
-        text='Main',
-        callback_data='main',
+async def accounts_keyboard(user_id: int) -> InlineKeyboardMarkup:
+    accounts = await get_accounts(user_id)
+
+    return _build_keyboard(
+        *[
+            (
+                account.name,
+                f'account_{account.account_id}',
+            )
+            for account in accounts
+        ],
+        Buttons.BACK,
+        adjust=4,
     )
-    return kb.as_markup()
