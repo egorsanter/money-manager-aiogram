@@ -20,7 +20,7 @@ async def show_main_menu(
     
     await set_step(
         state=state,
-        current_step=NavigationStep.MAIN,
+        current_step=NavigationStep.MAIN_MENU,
         user_id=user_id,
     )
 

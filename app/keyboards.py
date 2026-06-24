@@ -25,7 +25,7 @@ def back_keyboard() -> InlineKeyboardMarkup:
 
 
 def main_menu_button_keyboard() -> InlineKeyboardMarkup:
-    return _build_keyboard(Buttons.MAIN)
+    return _build_keyboard(Buttons.MAIN_MENU)
 
 
 def main_menu_keyboard() -> InlineKeyboardMarkup:

@@ -17,7 +17,7 @@ class FakeState:
 
 
 def test_set_step() -> None:
-    state = FakeState({'current_step': NavigationStep.MAIN})
+    state = FakeState({'current_step': NavigationStep.MAIN_MENU})
 
     asyncio.run(
         set_step(
@@ -29,7 +29,7 @@ def test_set_step() -> None:
     )
 
     assert state.data == {
-        'previous_step': NavigationStep.MAIN,
+        'previous_step': NavigationStep.MAIN_MENU,
         'current_step': NavigationStep.AMOUNT_INPUT,
         'extra_value': 'test',
     }
@@ -41,12 +41,12 @@ def test_set_step_previous_step_none() -> None:
     asyncio.run(
         set_step(
             state=state,
-            current_step=NavigationStep.MAIN,
+            current_step=NavigationStep.MAIN_MENU,
             user_id=1,
         )
     )
 
     assert state.data == {
         'previous_step': None,
-        'current_step': NavigationStep.MAIN,
+        'current_step': NavigationStep.MAIN_MENU,
     }

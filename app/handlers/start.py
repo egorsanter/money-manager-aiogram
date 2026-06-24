@@ -6,7 +6,6 @@ from aiogram.types import Message
 from app.logger import setup_logger
 from app.messages import START_TEXT
 from app.services.navigation.ui import show_main_menu
-from app.services.users import get_or_create_user
 
 
 router = Router()
@@ -14,10 +13,11 @@ logger = setup_logger(__name__)
 
 
 @router.message(CommandStart())
-async def cmd_start(message: Message, state: FSMContext) -> None:
-    user = await get_or_create_user(message.from_user.id)
-    user_id = user.user_id
-
+async def cmd_start(
+    message: Message,
+    state: FSMContext,
+    user_id: int,
+) -> None:
     await message.answer(START_TEXT)
     await show_main_menu(
         message=message,

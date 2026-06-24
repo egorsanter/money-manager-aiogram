@@ -2,7 +2,6 @@ from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from app.database.repositories.users import get_user_by_telegram_id
 from app.keyboards import accounts_keyboard
 from app.logger import setup_logger
 from app.messages import ACCOUNT_SELECTION_TEXT
@@ -18,10 +17,8 @@ logger = setup_logger(__name__)
 async def category_selected(
     callback: CallbackQuery,
     state: FSMContext,
+    user_id: int,
 ) -> None:
-    user = await get_user_by_telegram_id(callback.from_user.id)
-    user_id = user.user_id
-    
     data = await state.get_data()
     category_id = int(callback.data.split("_")[1])
     message_id = data['message_id']

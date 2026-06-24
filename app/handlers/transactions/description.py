@@ -3,7 +3,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from app.database.repositories.transactions import create_transaction
-from app.database.repositories.users import get_user_by_telegram_id
 from app.keyboards import main_menu_button_keyboard
 from app.logger import setup_logger
 from app.states import AddDescription
@@ -19,10 +18,8 @@ logger = setup_logger(__name__)
 async def description_skipped(
     callback: CallbackQuery,
     state: FSMContext,
+    user_id: int,
 ) -> None:
-    user = await get_user_by_telegram_id(callback.from_user.id)
-    user_id = user.user_id
-
     data = await state.get_data()
     message_id = data['message_id']
 
@@ -68,18 +65,16 @@ async def description_skipped(
 
 @router.message(AddDescription.description_input)
 async def description_submitted(
-    message: Message, 
-    state: FSMContext
+    message: Message,
+    state: FSMContext,
+    user_id: int,
 ) -> None:
-    user = await get_user_by_telegram_id(message.from_user.id)
-    user_id = user.user_id
-
     data = await state.get_data()
     message_id = data['message_id']
     description = message.text
 
     transaction_id = await create_transaction(
-        user_id=user.user_id,
+        user_id=user_id,
         account_id=data['account_id'],
         category_id=data['category_id'],
         amount=data['amount'],

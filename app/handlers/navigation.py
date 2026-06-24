@@ -2,7 +2,6 @@ from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from app.database.repositories.users import get_user_by_telegram_id
 from app.keyboards import (
     accounts_keyboard,
     back_keyboard,
@@ -29,18 +28,17 @@ logger = setup_logger(__name__)
 async def back_selected(
     callback: CallbackQuery,
     state: FSMContext,
+    user_id: int,
 ) -> None:
-    user = await get_user_by_telegram_id(callback.from_user.id)
-    user_id = user.user_id
     message_id = callback.message.message_id
 
     data = await state.get_data()
     previous_step = data.get('previous_step')
 
-    if previous_step == NavigationStep.MAIN:
+    if previous_step == NavigationStep.MAIN_MENU:
         await state.clear()
         await state.update_data(
-            current_step=NavigationStep.MAIN,
+            current_step=NavigationStep.MAIN_MENU,
             previous_step=None,
             user_id=user_id,
         )
@@ -55,7 +53,7 @@ async def back_selected(
 
         await state.update_data(
             current_step=NavigationStep.AMOUNT_INPUT,
-            previous_step=NavigationStep.MAIN,
+            previous_step=NavigationStep.MAIN_MENU,
             user_id=user_id,
             category_type=category_type,
             message_id=message_id,
@@ -126,7 +124,7 @@ async def back_selected(
     else:
         await state.clear()
         await state.update_data(
-            current_step=NavigationStep.MAIN,
+            current_step=NavigationStep.MAIN_MENU,
             previous_step=None,
             user_id=user_id,
         )

@@ -2,7 +2,6 @@ from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from app.database.repositories.users import get_user_by_telegram_id
 from app.exceptions import InvalidAmountError
 from app.keyboards import back_keyboard, categories_keyboard
 from app.logger import setup_logger
@@ -22,10 +21,8 @@ logger = setup_logger(__name__)
 async def amount_submitted(
     message: Message,
     state: FSMContext,
+    user_id: int,
 ) -> None:
-    user = await get_user_by_telegram_id(message.from_user.id)
-    user_id = user.user_id
-
     data = await state.get_data()
     message_id = data['message_id']
     category_type = data['category_type']

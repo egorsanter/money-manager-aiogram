@@ -3,30 +3,39 @@ import asyncio
 from aiogram import Bot, Dispatcher
 
 from app.config import BOT_TOKEN
-from app.logger import setup_logger
 from app.handlers import router
+from app.logger import setup_logger
+from app.middlewares import UserMiddleware
 
 
 logger = setup_logger(__name__)
 
 
-async def main() -> None:
-    logger.info('Starting bot...')
-    dp = Dispatcher()
+def _create_dispatcher() -> Dispatcher:
+    dispatcher = Dispatcher()
+    dispatcher.update.outer_middleware(UserMiddleware())
+    dispatcher.include_router(router)
+    return dispatcher
 
-    dp.include_router(router)
+
+async def run_bot() -> None:
+    logger.info('Starting bot')
+
+    dispatcher = _create_dispatcher()
 
     async with Bot(token=BOT_TOKEN) as bot:
-        logger.info('Starting polling...')
-        await dp.start_polling(bot)
-
-        logger.info('Polling stopped')
+        logger.info('Starting polling')
+        await dispatcher.start_polling(bot)
 
 
-if __name__ == '__main__':
+def main() -> None:
     try:
-        asyncio.run(main())
+        asyncio.run(run_bot())
     except KeyboardInterrupt:
         logger.info('Bot stopped manually')
     finally:
         logger.info('Bot shutdown complete')
+
+
+if __name__ == '__main__':
+    main()

@@ -23,7 +23,7 @@ def test_back_keyboard() -> None:
 
 def test_main_menu_button_keyboard() -> None:
     assert get_button_pairs(keyboards.main_menu_button_keyboard()) == [
-        Buttons.MAIN,
+        Buttons.MAIN_MENU,
     ]
 
 

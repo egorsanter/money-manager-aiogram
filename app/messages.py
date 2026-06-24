@@ -23,7 +23,7 @@ TRANSACTION_CREATE_TEXT = 'Done!'
 
 class Buttons:
     BACK = ('⬅️ Back', 'back')
-    MAIN = ('🏠 Main', 'main')
+    MAIN_MENU = ('🏠 Main menu', 'main_menu')
 
     INCOME = ('💰 Income', 'income')
     EXPENSE = ('💸 Expense', 'expense')
