@@ -2,13 +2,17 @@ from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from app.database.repositories.transactions import create_transaction
+from app.exceptions import InvalidTransactionReferenceError
 from app.keyboards import main_menu_button_keyboard
 from app.logger import setup_logger
+from app.messages import TRANSACTION_CREATE_FAILED_TEXT
+from app.services.telegram import (
+    safe_delete_message,
+    safe_edit_message_text,
+    safe_edit_text,
+)
+from app.services.transactions import finalize_transaction
 from app.states import AddDescription
-from app.database.repositories.categories import get_category
-from app.database.repositories.accounts import get_account
-
 
 router = Router()
 logger = setup_logger(__name__)
@@ -23,32 +27,40 @@ async def description_skipped(
     data = await state.get_data()
     message_id = data['message_id']
 
-    transaction_id = await create_transaction(
-        user_id=user_id,
-        account_id=data['account_id'],
-        category_id=data['category_id'],
-        amount=data['amount'],
-        description=None,
-    )
+    try:
+        transaction = await finalize_transaction(
+            user_id=user_id,
+            account_id=data['account_id'],
+            category_id=data['category_id'],
+            amount=data['amount'],
+            description=None,
+        )
+    except InvalidTransactionReferenceError:
+        await state.clear()
+        await safe_edit_text(
+            callback.message,
+            text=TRANSACTION_CREATE_FAILED_TEXT,
+            reply_markup=main_menu_button_keyboard(),
+        )
+        await callback.answer()
 
-    category = await get_category(user_id, data['category_id'])
-    account = await get_account(user_id, data['account_id'])
+        logger.warning(
+            'Transaction references are invalid',
+            extra={
+                'user_id': user_id,
+                'message_id': message_id,
+                'account_id': data.get('account_id'),
+                'category_id': data.get('category_id'),
+            },
+        )
 
-    category_name = data.get('category_name') or category.name
-    account_name = data.get('account_name') or account.name
-
-    text = (
-        "✅ Transaction created\n\n"
-        f"💸 Amount: {data['amount']}\n"
-        f'📂 Category: {category_name}\n'
-        f'🏦 Account: {account_name}\n'
-        f"📝 Description: –"
-    )
+        return
 
     await state.clear()
 
-    await callback.message.edit_text(
-        text=text,
+    await safe_edit_text(
+        callback.message,
+        text=transaction.text,
         reply_markup=main_menu_button_keyboard(),
     )
     await callback.answer()
@@ -58,7 +70,7 @@ async def description_skipped(
         extra={
             'user_id': user_id,
             'message_id': message_id,
-            'transaction_id': transaction_id,
+            'transaction_id': transaction.transaction_id,
         },
     )
 
@@ -73,35 +85,43 @@ async def description_submitted(
     message_id = data['message_id']
     description = message.text
 
-    transaction_id = await create_transaction(
-        user_id=user_id,
-        account_id=data['account_id'],
-        category_id=data['category_id'],
-        amount=data['amount'],
-        description=description,
-    )
+    try:
+        transaction = await finalize_transaction(
+            user_id=user_id,
+            account_id=data['account_id'],
+            category_id=data['category_id'],
+            amount=data['amount'],
+            description=description,
+        )
+    except InvalidTransactionReferenceError:
+        await state.clear()
+        await safe_delete_message(message)
+        await safe_edit_message_text(
+            bot=message.bot,
+            text=TRANSACTION_CREATE_FAILED_TEXT,
+            chat_id=message.chat.id,
+            message_id=message_id,
+            reply_markup=main_menu_button_keyboard(),
+        )
 
-    category = await get_category(user_id, data['category_id'])
-    account = await get_account(user_id, data['account_id'])
+        logger.warning(
+            'Transaction references are invalid',
+            extra={
+                'user_id': user_id,
+                'message_id': message_id,
+                'account_id': data.get('account_id'),
+                'category_id': data.get('category_id'),
+            },
+        )
 
-    category_name = data.get('category_name') or category.name
-    account_name = data.get('account_name') or account.name
-
-    text = (
-        "✅ Transaction created\n\n"
-        f"💸 Amount: {data['amount']}\n"
-        f'📂 Category: {category_name}\n'
-        f'🏦 Account: {account_name}\n'
-    )
-
-    if description:
-        text += f"📝 Description: {description}"
+        return
 
     await state.clear()
 
-    await message.delete()
-    await message.bot.edit_message_text(
-        text=text,
+    await safe_delete_message(message)
+    await safe_edit_message_text(
+        bot=message.bot,
+        text=transaction.text,
         chat_id=message.chat.id,
         message_id=message_id,
         reply_markup=main_menu_button_keyboard(),
@@ -112,6 +132,6 @@ async def description_submitted(
         extra={
             'user_id': user_id,
             'message_id': message_id,
-            'transaction_id': transaction_id,
+            'transaction_id': transaction.transaction_id,
         },
     )

@@ -11,6 +11,10 @@ CATEGORY_MESSAGES = {
 }
 
 MAIN_MENU_TEXT = '🏠 Main menu'
+NAVIGATION_RESET_TEXT = (
+    'This action is no longer available. '
+    'Please start again from the main menu.'
+)
 
 INVALID_AMOUNT_MSG = 'Please enter the correct amount!'
 NON_POSITIVE_AMOUNT_MSG = 'Amount must be greater than 0!'
@@ -20,6 +24,22 @@ CATEGORY_SELECTION_TEXT = 'Choose a category:'
 ACCOUNT_SELECTION_TEXT = 'Choose an account:'
 DESCRIPTION_INPUT_TEXT = 'Please enter the description:'
 TRANSACTION_CREATE_TEXT = 'Done!'
+TRANSACTION_CREATE_FAILED_TEXT = (
+    'Could not create transaction. Please start again from the main menu.'
+)
+INVALID_STATE_TEXT = (
+    'This action is no longer available. '
+    'Please start again from the main menu.'
+)
+TRANSACTION_CREATED_TEXT = (
+    "✅ Transaction created\n\n"
+    "💸 Amount: {amount}\n"
+    "📂 Category: {category_name}\n"
+    "🏦 Account: {account_name}\n"
+    "📝 Description: {description}"
+)
+NO_DESCRIPTION_TEXT = '–'
+
 
 class Buttons:
     BACK = ('⬅️ Back', 'back')

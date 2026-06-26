@@ -1,9 +1,11 @@
-from app.defaults import DEFAULT_ACCOUNTS, DEFAULT_CATEGORIES
+from sqlalchemy.exc import IntegrityError
+
 from app.database.models import Account, Category, User
 from app.database.repositories.users import (
     create_user,
     get_user_by_telegram_id,
 )
+from app.defaults import DEFAULT_ACCOUNTS, DEFAULT_CATEGORIES
 
 
 async def get_or_create_user(telegram_id: int) -> User:
@@ -22,4 +24,11 @@ async def get_or_create_user(telegram_id: int) -> User:
         ],
     )
 
-    return await create_user(user)
+    try:
+        return await create_user(user)
+    except IntegrityError:
+        existing_user = await get_user_by_telegram_id(telegram_id)
+        if existing_user:
+            return existing_user
+
+        raise

@@ -18,7 +18,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.database import Base
 
-
 CategoryType = Literal['income', 'expense']
 
 
@@ -133,7 +132,7 @@ class Category(Base):
     )
 
 
-class Transaction(Base): 
+class Transaction(Base):
     __tablename__ = 'transactions'
 
     transaction_id: Mapped[int] = mapped_column(Integer, primary_key=True)

@@ -7,9 +7,9 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.config import DATABASE_URL
 
-
 engine = create_async_engine(url=DATABASE_URL)
-async_session = async_sessionmaker(engine)
+async_session = async_sessionmaker(engine, expire_on_commit=False)
+
 
 class Base(AsyncAttrs, DeclarativeBase):
     pass

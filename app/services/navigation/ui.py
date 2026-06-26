@@ -4,9 +4,8 @@ from aiogram.types import Message
 from app.keyboards import main_menu_keyboard
 from app.logger import setup_logger
 from app.messages import MAIN_MENU_TEXT
-from app.services.navigation.service import set_step
+from app.services.navigation.service import set_navigation_step
 from app.services.navigation.steps import NavigationStep
-
 
 logger = setup_logger(__name__)
 
@@ -18,7 +17,7 @@ async def show_main_menu(
 ) -> None:
     await state.clear()
     
-    await set_step(
+    await set_navigation_step(
         state=state,
         current_step=NavigationStep.MAIN_MENU,
         user_id=user_id,

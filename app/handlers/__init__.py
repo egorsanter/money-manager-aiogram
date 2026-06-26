@@ -5,7 +5,6 @@ from .navigation import router as navigation_router
 from .start import router as start_router
 from .transactions import router as transactions_router
 
-
 router = Router()
 
 included_routers = (

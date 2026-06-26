@@ -7,7 +7,6 @@ from app.handlers import router
 from app.logger import setup_logger
 from app.middlewares import UserMiddleware
 
-
 logger = setup_logger(__name__)
 
 
@@ -19,7 +18,7 @@ def _create_dispatcher() -> Dispatcher:
 
 
 async def run_bot() -> None:
-    logger.info('Starting bot')
+    logger.info('Bot startup started')
 
     dispatcher = _create_dispatcher()
 
@@ -33,6 +32,9 @@ def main() -> None:
         asyncio.run(run_bot())
     except KeyboardInterrupt:
         logger.info('Bot stopped manually')
+    except Exception:
+        logger.exception('Bot stopped with an unexpected error')
+        raise
     finally:
         logger.info('Bot shutdown complete')
 

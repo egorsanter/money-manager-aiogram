@@ -5,10 +5,10 @@ from aiogram.types import CallbackQuery
 from app.keyboards import back_keyboard
 from app.logger import setup_logger
 from app.messages import AMOUNT_INPUT_TEXT
-from app.services.navigation.service import set_step
+from app.services.navigation.service import set_navigation_step
 from app.services.navigation.steps import NavigationStep
+from app.services.telegram import safe_edit_text
 from app.states import AddTransaction
-
 
 router = Router()
 logger = setup_logger(__name__)
@@ -22,7 +22,7 @@ async def transaction_selected(
 ) -> None:
     message_id = callback.message.message_id
 
-    await set_step(
+    await set_navigation_step(
         state,
         current_step=NavigationStep.AMOUNT_INPUT,
         user_id=user_id,
@@ -31,7 +31,8 @@ async def transaction_selected(
     )
     await state.set_state(AddTransaction.amount_input)
 
-    await callback.message.edit_text(
+    await safe_edit_text(
+        callback.message,
         AMOUNT_INPUT_TEXT,
         reply_markup=back_keyboard(),
     )

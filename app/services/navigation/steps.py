@@ -1,5 +1,5 @@
-# navigation_steps.py
 from enum import Enum
+
 
 class NavigationStep(str, Enum):
     MAIN_MENU = 'main_menu'

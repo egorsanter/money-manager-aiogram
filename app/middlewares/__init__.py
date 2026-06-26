@@ -1,1 +1,1 @@
-from .user import UserMiddleware
+from .user import UserMiddleware as UserMiddleware

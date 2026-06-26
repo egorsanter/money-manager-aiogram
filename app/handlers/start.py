@@ -7,7 +7,6 @@ from app.logger import setup_logger
 from app.messages import START_TEXT
 from app.services.navigation.ui import show_main_menu
 
-
 router = Router()
 logger = setup_logger(__name__)
 

@@ -1,0 +1,11 @@
+[tool.ruff]
+line-length = 79
+target-version = "py312"
+exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+cache_dir = ".cache/pytest"
