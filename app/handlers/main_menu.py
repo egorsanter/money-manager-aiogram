@@ -3,13 +3,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from app.logger import setup_logger
+from app.messages import Buttons
 from app.services.navigation.ui import show_main_menu
 
 router = Router()
 logger = setup_logger(__name__)
 
 
-@router.callback_query(F.data == 'main_menu')
+@router.callback_query(F.data == Buttons.MAIN_MENU.callback_data)
 async def main_menu_selected(
     callback: CallbackQuery,
     state: FSMContext,

@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, Message
 from app.exceptions import InvalidTransactionReferenceError
 from app.keyboards import main_menu_button_keyboard
 from app.logger import setup_logger
-from app.messages import TRANSACTION_CREATE_FAILED_TEXT
+from app.messages import TRANSACTION_CREATE_FAILED_TEXT, Buttons
 from app.services.telegram import (
     safe_delete_message,
     safe_edit_message_text,
@@ -18,7 +18,7 @@ router = Router()
 logger = setup_logger(__name__)
 
 
-@router.callback_query(F.data == 'description_skip')
+@router.callback_query(F.data == Buttons.SKIP.callback_data)
 async def description_skipped(
     callback: CallbackQuery,
     state: FSMContext,

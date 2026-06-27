@@ -3,17 +3,20 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.database.repositories.accounts import get_accounts
 from app.database.repositories.categories import get_categories
-from app.messages import Buttons
+from app.messages import Button, Buttons
 
 
 def _build_keyboard(
-    *buttons: tuple[str, str],
+    *buttons: Button,
     adjust: int = 1,
 ) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
 
-    for text, callback_data in buttons:
-        kb.button(text=text, callback_data=callback_data)
+    for button in buttons:
+        kb.button(
+            text=button.text,
+            callback_data=button.callback_data,
+        )
 
     kb.adjust(adjust)
 
@@ -32,6 +35,7 @@ def main_menu_keyboard() -> InlineKeyboardMarkup:
     return _build_keyboard(
         Buttons.INCOME,
         Buttons.EXPENSE,
+        Buttons.BALANCE,
         adjust=2,
     )
 
@@ -54,9 +58,9 @@ async def categories_keyboard(
 
     return _build_keyboard(
         *[
-            (
-                category.name,
-                f'category_{category.category_id}',
+            Button(
+                text=category.name,
+                callback_data=f'category_{category.category_id}',
             )
             for category in categories
         ],
@@ -70,9 +74,9 @@ async def accounts_keyboard(user_id: int) -> InlineKeyboardMarkup:
 
     return _build_keyboard(
         *[
-            (
-                account.name,
-                f'account_{account.account_id}',
+            Button(
+                text=account.name,
+                callback_data=f'account_{account.account_id}',
             )
             for account in accounts
         ],

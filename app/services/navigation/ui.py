@@ -13,10 +13,10 @@ logger = setup_logger(__name__)
 async def show_main_menu(
     message: Message,
     state: FSMContext,
-    user_id: int
+    user_id: int,
 ) -> None:
     await state.clear()
-    
+
     await set_navigation_step(
         state=state,
         current_step=NavigationStep.MAIN_MENU,

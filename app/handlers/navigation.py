@@ -17,7 +17,9 @@ from app.messages import (
     DESCRIPTION_INPUT_TEXT,
     MAIN_MENU_TEXT,
     NAVIGATION_RESET_TEXT,
+    Buttons,
 )
+from app.services.balance import get_balance_text
 from app.services.navigation.service import (
     get_required_state_data,
     set_navigation_step,
@@ -50,7 +52,7 @@ async def _show_main_menu(
     )
 
 
-@router.callback_query(F.data == 'back')
+@router.callback_query(F.data == Buttons.BACK.callback_data)
 async def back_selected(
     callback: CallbackQuery,
     state: FSMContext,
@@ -64,6 +66,20 @@ async def back_selected(
         match previous_step:
             case NavigationStep.MAIN_MENU:
                 await _show_main_menu(callback, state, user_id)
+
+            case NavigationStep.BALANCE:
+                await set_navigation_step(
+                    state=state,
+                    current_step=NavigationStep.BALANCE,
+                    previous_step=NavigationStep.MAIN_MENU,
+                    user_id=user_id,
+                    message_id=message_id,
+                )
+                await safe_edit_text(
+                    callback.message,
+                    await get_balance_text(user_id),
+                    reply_markup=back_keyboard(),
+                )
 
             case NavigationStep.AMOUNT_INPUT:
                 data = await get_required_state_data(state, 'category_type')

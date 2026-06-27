@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 START_TEXT = (
     '👋 Hey, fellow!\n\n'
     'I was made by the best man in the world '
@@ -11,6 +13,9 @@ CATEGORY_MESSAGES = {
 }
 
 MAIN_MENU_TEXT = '🏠 Main menu'
+BALANCE_TEXT = '💳 Balance'
+BALANCE_EMPTY_TEXT = 'You do not have any accounts yet.'
+BALANCE_ACCOUNT_TEXT = '{account_name}: {balance} {currency}'
 NAVIGATION_RESET_TEXT = (
     'This action is no longer available. '
     'Please start again from the main menu.'
@@ -41,11 +46,19 @@ TRANSACTION_CREATED_TEXT = (
 NO_DESCRIPTION_TEXT = '–'
 
 
+@dataclass(frozen=True)
+class Button:
+    text: str
+    callback_data: str
+
+
 class Buttons:
-    BACK = ('⬅️ Back', 'back')
-    MAIN_MENU = ('🏠 Main menu', 'main_menu')
+    BACK = Button('⬅️ Back', 'back')
+    MAIN_MENU = Button('🏠 Main menu', 'main_menu')
 
-    INCOME = ('💰 Income', 'income')
-    EXPENSE = ('💸 Expense', 'expense')
+    INCOME = Button('💰 Income', 'income')
+    EXPENSE = Button('💸 Expense', 'expense')
 
-    SKIP = ('⏭️ Skip', 'description_skip')
+    SKIP = Button('⏭️ Skip', 'description_skip')
+
+    BALANCE = Button('💳 Balance', 'balance')

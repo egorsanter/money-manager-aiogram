@@ -4,52 +4,45 @@ from aiogram.types import CallbackQuery
 
 from app.keyboards import back_keyboard
 from app.logger import setup_logger
-from app.messages import AMOUNT_INPUT_TEXT, Buttons
+from app.messages import Buttons
+from app.services.balance import get_balance_text
 from app.services.navigation.service import set_navigation_step
 from app.services.navigation.steps import NavigationStep
 from app.services.telegram import safe_edit_text
-from app.states import AddTransaction
 
 router = Router()
 logger = setup_logger(__name__)
 
 
-@router.callback_query(
-    F.data.in_(
-        {
-            Buttons.EXPENSE.callback_data,
-            Buttons.INCOME.callback_data,
-        }
-    )
-)
-async def transaction_selected(
+@router.callback_query(F.data == Buttons.BALANCE.callback_data)
+async def balance_selected(
     callback: CallbackQuery,
     state: FSMContext,
     user_id: int,
 ) -> None:
     message_id = callback.message.message_id
+    text = await get_balance_text(user_id)
 
     await set_navigation_step(
-        state,
-        current_step=NavigationStep.AMOUNT_INPUT,
+        state=state,
+        current_step=NavigationStep.BALANCE,
+        previous_step=NavigationStep.MAIN_MENU,
         user_id=user_id,
-        category_type=callback.data,
         message_id=message_id,
     )
-    await state.set_state(AddTransaction.amount_input)
 
     await safe_edit_text(
         callback.message,
-        AMOUNT_INPUT_TEXT,
+        text,
         reply_markup=back_keyboard(),
     )
+
     await callback.answer()
 
     logger.info(
-        'Transaction type selected',
+        'Balance opened',
         extra={
             'user_id': user_id,
-            'category_type': callback.data,
             'message_id': message_id,
         },
     )
